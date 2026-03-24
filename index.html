@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rahul Patel — Unity Developer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #080c10;
+      --surface:   #0d1117;
+      --card:      #111820;
+      --border:    #1e2d3d;
+      --accent:    #00e5ff;
+      --accent2:   #7b2fff;
+      --accent3:   #ff4f5e;
+      --text:      #cdd9e5;
+      --muted:     #4d6072;
+      --white:     #f0f6fc;
+      --mono:      'Space Mono', monospace;
+      --display:   'Syne', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--display);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--accent2); border-radius: 2px; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.1rem 3rem;
+      background: rgba(8, 12, 16, 0.85);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+    }
+    .nav-logo span { color: var(--muted); }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh;
+      display: flex; align-items: center;
+      padding: 6rem 3rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-grid-bg {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.04) 1px, transparent 1px);
+      background-size: 50px 50px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 80%);
+    }
+    .hero-glow {
+      position: absolute;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(123,47,255,0.18) 0%, transparent 70%);
+      top: -100px; right: -100px;
+      pointer-events: none;
+    }
+    .hero-glow2 {
+      position: absolute;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,229,255,0.12) 0%, transparent 70%);
+      bottom: 0; left: -80px;
+      pointer-events: none;
+    }
+    .hero-content { position: relative; max-width: 860px; }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--accent);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+    .hero-tag::before {
+      content: '';
+      display: block; width: 24px; height: 1px;
+      background: var(--accent);
+    }
+    h1.hero-name {
+      font-size: clamp(3rem, 8vw, 7rem);
+      font-weight: 800;
+      line-height: 0.95;
+      color: var(--white);
+      letter-spacing: -0.03em;
+      margin-bottom: 1.2rem;
+    }
+    h1.hero-name em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 520px;
+      margin-bottom: 2.5rem;
+      line-height: 1.7;
+    }
+    .hero-ctas { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.75rem 1.6rem;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border-radius: 4px;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: var(--bg);
+      border: 1px solid var(--accent);
+      font-weight: 700;
+    }
+    .btn-primary:hover { background: transparent; color: var(--accent); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── SECTION WRAPPER ── */
+    section { padding: 6rem 3rem; }
+    .section-header {
+      display: flex; align-items: center; gap: 1.2rem;
+      margin-bottom: 3.5rem;
+    }
+    .section-num {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--accent2);
+      letter-spacing: 0.1em;
+    }
+    .section-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--white);
+      letter-spacing: -0.02em;
+    }
+    .section-line {
+      flex: 1; height: 1px;
+      background: linear-gradient(90deg, var(--border) 0%, transparent 100%);
+    }
+
+    /* ── ABOUT ── */
+    #about { background: var(--surface); }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: start;
+    }
+    .about-text p {
+      color: var(--text);
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      line-height: 1.8;
+    }
+    .about-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      transition: border-color 0.2s;
+    }
+    .stat-card:hover { border-color: var(--accent); }
+    .stat-num {
+      font-family: var(--mono);
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 0.4rem;
+    }
+    .stat-label { font-size: 0.82rem; color: var(--muted); letter-spacing: 0.05em; }
+
+    /* ── SKILLS ── */
+    #skills { background: var(--bg); }
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+    .skill-group {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.8rem;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .skill-group::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 2px;
+    }
+    .skill-group.c1::before { background: var(--accent); }
+    .skill-group.c2::before { background: var(--accent2); }
+    .skill-group.c3::before { background: var(--accent3); }
+    .skill-group.c4::before { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+    .skill-group:hover { border-color: var(--border); transform: translateY(-3px); }
+    .skill-group-title {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+    .skill-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .tag {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      padding: 0.3rem 0.7rem;
+      border-radius: 3px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      color: var(--text);
+      letter-spacing: 0.04em;
+      transition: all 0.15s;
+    }
+    .tag:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── EXPERIENCE ── */
+    #experience { background: var(--surface); }
+    .timeline { position: relative; }
+    .timeline::before {
+      content: '';
+      position: absolute; left: 0; top: 0; bottom: 0;
+      width: 1px;
+      background: linear-gradient(180deg, var(--accent2), transparent);
+    }
+    .timeline-item {
+      padding-left: 2.5rem;
+      margin-bottom: 3rem;
+      position: relative;
+    }
+    .timeline-item::before {
+      content: '';
+      position: absolute; left: -4px; top: 6px;
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: var(--accent2);
+      border: 2px solid var(--bg);
+    }
+    .timeline-meta {
+      display: flex; align-items: center; gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.5rem;
+    }
+    .timeline-company {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--white);
+    }
+    .timeline-period {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+      background: rgba(0,229,255,0.08);
+      border: 1px solid rgba(0,229,255,0.2);
+      padding: 0.2rem 0.6rem;
+      border-radius: 3px;
+    }
+    .timeline-role {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+      font-family: var(--mono);
+    }
+    .timeline-points { list-style: none; }
+    .timeline-points li {
+      position: relative;
+      padding-left: 1.2rem;
+      margin-bottom: 0.55rem;
+      font-size: 0.92rem;
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .timeline-points li::before {
+      content: '›';
+      position: absolute; left: 0;
+      color: var(--accent2);
+    }
+
+    /* ── PROJECTS ── */
+    #projects { background: var(--bg); }
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+    .project-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.8rem;
+      transition: all 0.25s;
+      display: flex; flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+    .project-card::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(0,229,255,0.03) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .project-card:hover {
+      border-color: rgba(0,229,255,0.3);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+    .project-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 0.8rem;
+    }
+    .project-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: -0.01em;
+    }
+    .project-date {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+    }
+    .project-desc {
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-bottom: 1.2rem;
+      flex: 1;
+    }
+    .project-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .project-tag {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 2px;
+      letter-spacing: 0.06em;
+    }
+    .pt-blue { background: rgba(0,229,255,0.1); color: var(--accent); border: 1px solid rgba(0,229,255,0.2); }
+    .pt-purple { background: rgba(123,47,255,0.1); color: #9b6eff; border: 1px solid rgba(123,47,255,0.2); }
+    .pt-red { background: rgba(255,79,94,0.1); color: #ff7080; border: 1px solid rgba(255,79,94,0.2); }
+    .pt-green { background: rgba(0,230,118,0.1); color: #00e676; border: 1px solid rgba(0,230,118,0.2); }
+
+    /* ── CONTACT ── */
+    #contact {
+      background: var(--surface);
+      text-align: center;
+    }
+    .contact-inner { max-width: 600px; margin: 0 auto; }
+    .contact-headline {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 800;
+      color: var(--white);
+      letter-spacing: -0.03em;
+      margin-bottom: 1rem;
+    }
+    .contact-sub { color: var(--muted); margin-bottom: 2.5rem; line-height: 1.7; }
+    .contact-links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .contact-link {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--text);
+      text-decoration: none;
+      padding: 0.65rem 1.2rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      letter-spacing: 0.08em;
+      transition: all 0.2s;
+    }
+    .contact-link:hover { border-color: var(--accent); color: var(--accent); }
+    .contact-link svg { width: 14px; height: 14px; }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 2rem 3rem;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .footer-copy {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { opacity: 0; animation: fadeUp 0.7s ease forwards; }
+    .d1 { animation-delay: 0.1s; }
+    .d2 { animation-delay: 0.25s; }
+    .d3 { animation-delay: 0.4s; }
+    .d4 { animation-delay: 0.55s; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      section { padding: 4rem 1.5rem; }
+      #hero { padding: 6rem 1.5rem 3rem; }
+      .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+      footer { flex-direction: column; gap: 0.5rem; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo"><span>~/</span>rahul-patel</div>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-grid-bg"></div>
+    <div class="hero-glow"></div>
+    <div class="hero-glow2"></div>
+    <div class="hero-content">
+      <div class="hero-tag fade-up d1">Unity Developer · AR/VR · Game Systems</div>
+      <h1 class="hero-name fade-up d2">Rahul<br><em>Patel</em></h1>
+      <p class="hero-sub fade-up d3">
+        4+ years shipping games across arcade hardware, AR, mobile and WebGL platforms. From projection-mapped floor experiences to Bluetooth-synced RC car AR games — I build things players actually feel.
+      </p>
+      <div class="hero-ctas fade-up d4">
+        <a href="mailto:rahulpatel61020@gmail.com" class="btn btn-primary">Get in Touch</a>
+        <a href="#projects" class="btn btn-ghost">View Projects</a>
+        <a href="https://www.linkedin.com/in/rahul-patel-2a4469170" target="_blank" class="btn btn-ghost">LinkedIn</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2 class="section-title">About</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="about-grid">
+      <div class="about-text">
+        <p>I'm a Unity Developer who's spent 4+ years building games across wildly different platforms — projection-mapped arcade floors, Vuforia AR on iOS, mobile hypercasual, WebGL, and industrial simulations.</p>
+        <p>My career started at TouchMagix, building arcade games for entertainment centres worldwide. From there I moved into AR-integrated hardware at Mirana, where I shipped 8+ games on an app with 50K+ downloads, syncing virtual gameplay to physical RC cars over Bluetooth.</p>
+        <p>I bridge the gap between technical problem-solving and player-centric design. If a game doesn't feel good, the code doesn't matter. So I care about both.</p>
+      </div>
+      <div class="about-stats">
+        <div class="stat-card">
+          <div class="stat-num">4+</div>
+          <div class="stat-label">Years Professional Experience</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">7+</div>
+          <div class="stat-label">Years Using Unity</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">8+</div>
+          <div class="stat-label">AR Games Shipped</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">50K+</div>
+          <div class="stat-label">App Downloads (Mirana)</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2 class="section-title">Skills</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-group c1">
+        <div class="skill-group-title">Programming</div>
+        <div class="skill-tags">
+          <span class="tag">C#</span>
+          <span class="tag">JSON</span>
+          <span class="tag">RESTful API</span>
+          <span class="tag">Singleton</span>
+          <span class="tag">Observer</span>
+          <span class="tag">Object Pooling</span>
+          <span class="tag">FSM</span>
+          <span class="tag">Design Patterns</span>
+        </div>
+      </div>
+      <div class="skill-group c2">
+        <div class="skill-group-title">Platforms & Engines</div>
+        <div class="skill-tags">
+          <span class="tag">Unity 3D</span>
+          <span class="tag">WebGL</span>
+          <span class="tag">iOS</span>
+          <span class="tag">Android</span>
+          <span class="tag">Arcade Hardware</span>
+          <span class="tag">2D / 3D</span>
+          <span class="tag">MotionMagix SDK</span>
+        </div>
+      </div>
+      <div class="skill-group c3">
+        <div class="skill-group-title">Interactive & Simulation</div>
+        <div class="skill-tags">
+          <span class="tag">Augmented Reality</span>
+          <span class="tag">Vuforia</span>
+          <span class="tag">VR</span>
+          <span class="tag">Rigidbody Physics</span>
+          <span class="tag">NavMesh</span>
+          <span class="tag">Gesture Interaction</span>
+          <span class="tag">Collision Detection</span>
+          <span class="tag">Shader Graph</span>
+        </div>
+      </div>
+      <div class="skill-group c4">
+        <div class="skill-group-title">Performance & Tools</div>
+        <div class="skill-tags">
+          <span class="tag">Unity Profiler</span>
+          <span class="tag">Baked Lighting</span>
+          <span class="tag">LOD</span>
+          <span class="tag">Occlusion Culling</span>
+          <span class="tag">Draw Call Opt.</span>
+          <span class="tag">ScriptableObjects</span>
+          <span class="tag">Git</span>
+          <span class="tag">Figma</span>
+          <span class="tag">Visual Studio</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section id="experience">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2 class="section-title">Experience</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="timeline">
+
+      <div class="timeline-item">
+        <div class="timeline-meta">
+          <span class="timeline-company">Mirana Toys</span>
+          <span class="timeline-period">Jul 2024 – Oct 2025</span>
+        </div>
+        <div class="timeline-role">Unity 3D Developer · Pune, Maharashtra</div>
+        <ul class="timeline-points">
+          <li>Shipped 8+ Unity & Vuforia AR games on the Mirana App (50K+ downloads on iOS & Android), fusing virtual object-collection mechanics with physical RC car movement.</li>
+          <li>Stabilised AR first-launch reliability by diagnosing Unity-Vuforia lifecycle conflicts on iOS, eliminating critical crashes across all supported devices.</li>
+          <li>Reduced Bluetooth RC car input latency to under 50ms by integrating RESTful APIs and tuning Rigidbody parameters against actual hardware specs.</li>
+          <li>Elevated game feel with custom shaders, textures, particle systems, vibration and screen shake feedback.</li>
+        </ul>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-meta">
+          <span class="timeline-company">Jash Entertainment</span>
+          <span class="timeline-period">Jan 2024 – Mar 2024</span>
+        </div>
+        <div class="timeline-role">Unity Developer · Ahmedabad, Gujarat</div>
+        <ul class="timeline-points">
+          <li>Delivered 4+ mobile and WebGL games across Android, iOS and browser platforms with consistent gameplay via platform-specific build profiles.</li>
+          <li>Eliminated runtime GC allocation bottlenecks by profiling C# hot paths with Unity Profiler and refactoring object-pooling strategies.</li>
+          <li>Maintained visual quality from low-end Android to desktop browsers with adaptive fog, particles and Unity Canvas anchor-based UI scaling.</li>
+        </ul>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-meta">
+          <span class="timeline-company">TouchMagix</span>
+          <span class="timeline-period">Jun 2021 – Feb 2023</span>
+        </div>
+        <div class="timeline-role">Game Developer · Pune, Maharashtra</div>
+        <ul class="timeline-points">
+          <li>Built 3 original arcade games in Unity with dual game modes, bonus mechanics and timing-based controls, deployed to entertainment centres worldwide.</li>
+          <li>Engineered gesture-based collision detection for MotionMagix floor and wall projection experiences, ensuring accurate real-time input across varied environments.</li>
+          <li>Migrated 5+ legacy Flash games to Unity via MotionMagix SDK, preserving full gameplay integrity while modernising the content library.</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2 class="section-title">Projects</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="projects-grid">
+
+      <div class="project-card">
+        <div class="project-header">
+          <div class="project-name">Spirit Cards Dice Multiplier</div>
+          <div class="project-date">Feb 2026</div>
+        </div>
+        <p class="project-desc">Dice-roll simulation with a fully decoupled event architecture — 7 events across 12 scripts using a static GameEvents bus. Choreographed equation reveal with coroutine-based sequencing and physically simulated dice with squash-stretch deformation.</p>
+        <div class="project-tags">
+          <span class="project-tag pt-blue">Unity</span>
+          <span class="project-tag pt-purple">ScriptableObjects</span>
+          <span class="project-tag pt-green">Event Architecture</span>
+          <span class="project-tag pt-red">Animation</span>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="project-header">
+          <div class="project-name">AI-Driven Narrative Game</div>
+          <div class="project-date">Jan 2026</div>
+        </div>
+        <p class="project-desc">Interactive quest game with a lifelike NPC powered by Convai SDK — real-time voice and dialogue. Branching storylines with multiple distinct endings dynamically driven by natural conversation direction.</p>
+        <div class="project-tags">
+          <span class="project-tag pt-blue">Unity</span>
+          <span class="project-tag pt-purple">Convai SDK</span>
+          <span class="project-tag pt-green">AI / NPC</span>
+          <span class="project-tag pt-red">Branching Narrative</span>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="project-header">
+          <div class="project-name">Pipe Bending Machine Simulation</div>
+          <div class="project-date">Oct 2025 – Jan 2026</div>
+        </div>
+        <p class="project-desc">Real-time 3D industrial CNC simulation in Unity with dynamic mesh generation, parametric control on centerline radius, bend angle and die geometry. Multi-bend support via spline-driven deformation that keeps arc and pipe length consistent.</p>
+        <div class="project-tags">
+          <span class="project-tag pt-blue">Unity</span>
+          <span class="project-tag pt-purple">Mesh Generation</span>
+          <span class="project-tag pt-green">Industrial Sim</span>
+          <span class="project-tag pt-red">Splines</span>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="project-header">
+          <div class="project-name">Perfect Match</div>
+          <div class="project-date">Feb 2026</div>
+        </div>
+        <p class="project-desc">Dynamic grid-based card matching game with scalable layouts (2×2 up to 5×6), smooth flip animations via Coroutines with non-blocking input, score tracking, timer mechanics and full replay functionality.</p>
+        <div class="project-tags">
+          <span class="project-tag pt-blue">Unity</span>
+          <span class="project-tag pt-green">UI / Layout</span>
+          <span class="project-tag pt-purple">Coroutines</span>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="project-header">
+          <div class="project-name">Procedural Environment Generator</div>
+          <div class="project-date">Feb 2026</div>
+        </div>
+        <p class="project-desc">Runtime platform generation system spawning GameObjects with randomized gap and height values. Chain-based platform data structure with event-driven architecture separating spawning logic from instantiation.</p>
+        <div class="project-tags">
+          <span class="project-tag pt-blue">Unity</span>
+          <span class="project-tag pt-purple">Procedural Gen</span>
+          <span class="project-tag pt-green">Event-Driven</span>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="project-header">
+          <div class="project-name">Horror FPS — Zombie Wave Survival</div>
+          <div class="project-date">Mar 2021</div>
+        </div>
+        <p class="project-desc">Enemy AI with NavMesh pathfinding, multi-phase boss with health-based behaviour switching. Wave-based spawning via Coroutines with rising difficulty. Enum-driven weapon system. Optimised with baked lighting, LODs and occlusion culling.</p>
+        <div class="project-tags">
+          <span class="project-tag pt-blue">Unity</span>
+          <span class="project-tag pt-red">NavMesh AI</span>
+          <span class="project-tag pt-purple">FPS</span>
+          <span class="project-tag pt-green">Optimisation</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="contact-inner">
+      <h2 class="contact-headline">Let's Build<br>Something.</h2>
+      <p class="contact-sub">Whether it's a game, an AR experience, or an industrial simulation — I'm open to new projects, roles and collabs.</p>
+      <div class="contact-links">
+        <a href="mailto:rahulpatel61020@gmail.com" class="contact-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          rahulpatel61020@gmail.com
+        </a>
+        <a href="https://www.linkedin.com/in/rahul-patel-2a4469170" target="_blank" class="contact-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+          LinkedIn
+        </a>
+        <a href="tel:+919167037056" class="contact-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.93-.94a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7a2 2 0 0 1 1.72 2.03z"/></svg>
+          +91 9167037056
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="footer-copy">© 2026 Rahul Dilip Patel</span>
+    <span class="footer-copy">Mumbai, India</span>
+  </footer>
+
+</body>
+</html>
